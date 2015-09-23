@@ -9,6 +9,7 @@ const (
 	TagName      = "fluent"
 	TagField     = "tag"
 	MessageField = "message"
+	DefaultTag   = "log"
 )
 
 var defaultLevels = []logrus.Level{
@@ -42,12 +43,12 @@ func getTagAndDel(entry *logrus.Entry) string {
 	var v interface{}
 	var ok bool
 	if v, ok = entry.Data[TagField]; !ok {
-		return entry.Message
+		return DefaultTag
 	}
 
 	var val string
 	if val, ok = v.(string); !ok {
-		return entry.Message
+		return DefaultTag
 	}
 	delete(entry.Data, TagField)
 	return val
@@ -66,9 +67,7 @@ func setMessage(entry *logrus.Entry) {
 func (hook *fluentHook) Fire(entry *logrus.Entry) error {
 	setLevelString(entry)
 	tag := getTagAndDel(entry)
-	if tag != entry.Message {
-		setMessage(entry)
-	}
+	setMessage(entry)
 
 	data := ConvertToValue(entry.Data, TagName)
 	return hook.Logger.PostWithTime(tag, entry.Time, data)
