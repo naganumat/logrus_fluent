@@ -20,17 +20,22 @@ var defaultLevels = []logrus.Level{
 }
 
 type fluentHook struct {
-	host   string
-	port   int
+	Logger *fluent.Fluent
 	levels []logrus.Level
 }
 
-func NewHook(host string, port int) *fluentHook {
-	return &fluentHook{
-		host:   host,
-		port:   port,
-		levels: defaultLevels,
+func NewHook(host string, port int) (*fluentHook, error) {
+	logger, err := fluent.New(fluent.Config{
+		FluentHost: host,
+		FluentPort: port,
+	})
+	if err != nil {
+		return nil, err
 	}
+	return &fluentHook{
+		Logger: logger,
+		levels: defaultLevels,
+	}, nil
 }
 
 func getTagAndDel(entry *logrus.Entry) string {
@@ -59,15 +64,6 @@ func setMessage(entry *logrus.Entry) {
 }
 
 func (hook *fluentHook) Fire(entry *logrus.Entry) error {
-	logger, err := fluent.New(fluent.Config{
-		FluentHost: hook.host,
-		FluentPort: hook.port,
-	})
-	if err != nil {
-		return err
-	}
-	defer logger.Close()
-
 	setLevelString(entry)
 	tag := getTagAndDel(entry)
 	if tag != entry.Message {
@@ -75,8 +71,7 @@ func (hook *fluentHook) Fire(entry *logrus.Entry) error {
 	}
 
 	data := ConvertToValue(entry.Data, TagName)
-	err = logger.PostWithTime(tag, entry.Time, data)
-	return err
+	return hook.Logger.PostWithTime(tag, entry.Time, data)
 }
 
 func (hook *fluentHook) Levels() []logrus.Level {
