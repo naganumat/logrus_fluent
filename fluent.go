@@ -6,7 +6,6 @@ import (
 )
 
 const (
-	TagName      = "fluent"
 	TagField     = "tag"
 	MessageField = "message"
 	DefaultTag   = "log"
@@ -69,7 +68,7 @@ func (hook *fluentHook) Fire(entry *logrus.Entry) error {
 	tag := getTagAndDel(entry)
 	setMessage(entry)
 
-	data := ConvertToValue(entry.Data, TagName)
+	data := ConvertFields(entry.Data)
 	return hook.Logger.PostWithTime(tag, entry.Time, data)
 }
 
