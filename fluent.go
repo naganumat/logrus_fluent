@@ -9,6 +9,8 @@ const (
 	TagField     = "tag"
 	MessageField = "message"
 	DefaultTag   = "log"
+
+	RFC3339Milli = "2006-01-02T15:04:05.999Z07:00"
 )
 
 var defaultLevels = []logrus.Level{
@@ -69,6 +71,7 @@ func (hook *fluentHook) Fire(entry *logrus.Entry) error {
 	setMessage(entry)
 
 	data := ConvertFields(entry.Data)
+	data["@timestamp"] = entry.Time.Format(RFC3339Milli)
 	return hook.Logger.PostWithTime(tag, entry.Time, data)
 }
 
