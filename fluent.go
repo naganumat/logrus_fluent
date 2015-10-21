@@ -1,6 +1,8 @@
 package logrus_fluent
 
 import (
+	"time"
+
 	"github.com/Sirupsen/logrus"
 	"github.com/fluent/fluent-logger-golang/fluent"
 )
@@ -9,8 +11,6 @@ const (
 	TagField     = "tag"
 	MessageField = "message"
 	DefaultTag   = "log"
-
-	RFC3339Milli = "2006-01-02T15:04:05.999Z07:00"
 )
 
 var defaultLevels = []logrus.Level{
@@ -71,7 +71,7 @@ func (hook *fluentHook) Fire(entry *logrus.Entry) error {
 	setMessage(entry)
 
 	data := ConvertFields(entry.Data)
-	data["@timestamp"] = entry.Time.Format(RFC3339Milli)
+	data["@timestamp"] = entry.Time.UTC().Format(time.RFC3339Nano)
 	return hook.Logger.PostWithTime(tag, entry.Time, data)
 }
 
