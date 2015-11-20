@@ -8,9 +8,10 @@ import (
 )
 
 const (
-	TagField     = "tag"
-	MessageField = "message"
-	DefaultTag   = "log"
+	TagField           = "tag"
+	MessageField       = "message"
+	DefaultTag         = "log"
+	PreviousLevelField = "fields.level"
 )
 
 var defaultLevels = []logrus.Level{
@@ -60,15 +61,14 @@ func setLevelString(entry *logrus.Entry) {
 }
 
 func setMessage(entry *logrus.Entry) {
-	if _, ok := entry.Data[MessageField]; !ok {
-		entry.Data[MessageField] = entry.Message
-	}
+	entry.Data[MessageField] = entry.Message
 }
 
 func (hook *fluentHook) Fire(entry *logrus.Entry) error {
 	setLevelString(entry)
 	tag := getTagAndDel(entry)
 	setMessage(entry)
+	delete(entry.Data, PreviousLevelField)
 
 	data := ConvertFields(entry.Data)
 	data["@timestamp"] = entry.Time.UTC().Format(time.RFC3339Nano)
