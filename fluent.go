@@ -71,7 +71,8 @@ func (hook *fluentHook) Fire(entry *logrus.Entry) error {
 	delete(entry.Data, PreviousLevelField)
 
 	data := ConvertFields(entry.Data)
-	data["timestamp"] = entry.Time.UTC().Format(time.RFC3339Nano)
+	//data["timestamp"] = entry.Time.UTC().Format(time.RFC3339Nano)
+	var _ = time.RFC3339Nano
 	return hook.Logger.PostWithTime(tag, entry.Time, data)
 }
 
