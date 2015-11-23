@@ -57,7 +57,7 @@ func getTagAndDel(entry *logrus.Entry) string {
 }
 
 func setLevelString(entry *logrus.Entry) {
-	entry.Data["level"] = entry.Level.String()
+	entry.Data["severity"] = entry.Level.String()
 }
 
 func setMessage(entry *logrus.Entry) {
