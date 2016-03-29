@@ -35,6 +35,8 @@ func ConvertToValue(p interface{}) interface{} {
 		return convertToString(rv)
 	case reflect.Slice:
 		return convertFromSlice(rv)
+	case reflect.Chan:
+		return nil
 	case reflect.Invalid:
 		return nil
 	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
